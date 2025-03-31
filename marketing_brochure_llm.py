@@ -98,7 +98,7 @@ def get_brochure_user_prompt(company_name, url):
     user_prompt = f'You are looking at a company called {company_name}\n'
     user_prompt += f'Here are the contents of it"s landing page and other relevant pages; use this information to build a short brochure of the company in the markdown\n'
     user_prompt += get_all_details(url)
-    user_prompt += user_prompt[:5000]
+    user_prompt += user_prompt[:20000]
     return user_prompt
 
 def create_brochure(company_name, url):
