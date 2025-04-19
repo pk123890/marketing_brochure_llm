@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
+import gradio as gr
 
 load_dotenv(override=True)
 api_key = os.getenv('OPENAI_API_KEY')
@@ -110,9 +111,16 @@ def create_brochure(company_name, url):
                                                   {
                                                       'role': 'user', 'content': get_brochure_user_prompt(company_name, url)
                                                   }
-                                              ])
-    result = response.choices[0].message.content
-    print(result)
+                                              ],
+                                              stream=True)
+    result = ""
+    for chunk in response:
+        result +=chunk.choices[0].delta.content or ""
+        yield result
     display(Markdown(result))
 
-create_brochure("HuggingFace", "https://huggingface.co")
+gr.Interface(
+    fn=create_brochure,
+    inputs=[gr.Textbox(label="Company name:", lines=1), gr.Textbox(label="Company URL:", lines=1)],
+    outputs=[gr.Markdown(label="Response:")],
+    flagging_mode="never").launch()
